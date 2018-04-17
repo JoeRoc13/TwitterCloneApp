@@ -1,6 +1,5 @@
 package com.jrocaberte.twitterclone;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mUsername, mPassword;
     private Button mLogin;
+    public static final String PREF_FILE_NAME = "UserInfo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,8 @@ public class LoginActivity extends AppCompatActivity {
                                         String regis_date = jsonObject.getString("regis_date");
 
                                         // Store info in SharedPreferences
-                                        SharedPreferences userInfo = getPreferences(Context.MODE_PRIVATE);
+
+                                        SharedPreferences userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
                                         SharedPreferences.Editor edit = userInfo.edit();
                                         edit.putInt("uid", uid);
                                         edit.putString("username", username.trim());
