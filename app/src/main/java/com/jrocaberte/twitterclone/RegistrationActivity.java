@@ -1,5 +1,6 @@
 package com.jrocaberte.twitterclone;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText mUsername, mEmail, mPassword, mLocation;
     private Button mRegister;
     public static final String PREF_FILE_NAME = "UserInfo";
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +47,14 @@ public class RegistrationActivity extends AppCompatActivity {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog.setMessage("Logging in...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
                 RequestQueue queue = Volley.newRequestQueue(RegistrationActivity.this);
                 //this is the url where you want to send the request
-                String url = "http://10.0.0.33/Twitter_Clone/API/signup.php";
+                String IP = "10.0.0.33";
+                String url = "http://" + IP + "/Twitter_Clone/API/login.php";
                 final String email = mEmail.getText().toString();
                 final String username = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
@@ -74,6 +81,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                         edit.putString("regis_date", jsonObject.getString("regis_date"));
                                         edit.apply();
 
+                                        progressDialog.dismiss();
                                         Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();
@@ -84,6 +92,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (JSONException e) {
+                                    progressDialog.dismiss();
                                     Log.d("JSON Error", e.toString());
                                 }
                                 Log.d("Response",response);
@@ -91,6 +100,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        progressDialog.dismiss();
                         Log.d("Error", error.toString());
                     }
                 }) {
