@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -29,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mUsername, mPassword;
     private Button mLogin;
+    private TextView mRegister;
     public static final String PREF_FILE_NAME = "UserInfo";
     private ProgressDialog progressDialog;
 
@@ -39,8 +41,18 @@ public class LoginActivity extends AppCompatActivity {
 
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
-
+        mRegister = (TextView) findViewById(R.id.signUp);
         mLogin = (Button) findViewById(R.id.login);
+
+        mRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        });
 
         mLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                 RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
                 //this is the url where you want to send the request
                 //TODO: replace with your own url to send request, as I am using my own localhost for this tutorial
-                String IP = "10.0.0.33";
+                String IP = "10.0.2.2";
                 String url = "http://" + IP + "/Twitter_Clone/API/login.php";
                 final String username = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();

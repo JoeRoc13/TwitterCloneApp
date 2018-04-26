@@ -47,13 +47,13 @@ public class RegistrationActivity extends AppCompatActivity {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog = new ProgressDialog(RegistrationActivity.this);
                 progressDialog.setMessage("Logging in...");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
                 RequestQueue queue = Volley.newRequestQueue(RegistrationActivity.this);
                 //this is the url where you want to send the request
-                String IP = "10.0.0.33";
+                String IP = "10.253.80.169";
                 String url = "http://" + IP + "/Twitter_Clone/API/login.php";
                 final String email = mEmail.getText().toString();
                 final String username = mUsername.getText().toString();

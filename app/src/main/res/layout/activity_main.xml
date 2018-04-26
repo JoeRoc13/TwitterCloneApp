@@ -4,12 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="horizontal">
+
+    <EditText
+        android:id="@+id/search"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search a user" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Signout"
-        android:onClick="logoutUser"/>
+        android:text="Messages"
+        android:onClick="goToMessages" />
 
 </LinearLayout>

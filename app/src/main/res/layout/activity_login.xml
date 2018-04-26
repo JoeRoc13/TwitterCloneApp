@@ -26,4 +26,13 @@
         android:text="Login"
         android:id="@+id/login"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign up for Twitter"
+        android:textColor="#365899"
+        android:gravity="center_horizontal"
+        android:paddingTop="10dp"
+        android:id="@+id/signUp"/>
+
 </LinearLayout>

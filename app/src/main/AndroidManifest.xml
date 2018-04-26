@@ -20,9 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChooseLoginRegistrationActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegistrationActivity" />
+        <activity android:name=".MessagesActivity"></activity>
     </application>
 
 </manifest>
