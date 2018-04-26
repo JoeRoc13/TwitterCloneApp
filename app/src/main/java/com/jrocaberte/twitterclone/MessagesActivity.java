@@ -35,8 +35,8 @@ public class MessagesActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(MessagesActivity.this);
         //this is the url where you want to send the request
         //TODO: replace with your own url to send request, as I am using my own localhost for this tutorial
-        String IP = "10.0.2.2";
-        String url = "http://" + IP + "/Twitter_Clone/API/login.php";
+        String IP = "10.253.80.122";
+        String url = "http://" + IP + "/Twitter_Clone/API/messages.php";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,

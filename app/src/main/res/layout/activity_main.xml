@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/search"
@@ -15,10 +15,5 @@
         android:layout_height="wrap_content"
         android:hint="Search a user" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Messages"
-        android:onClick="goToMessages" />
 
 </LinearLayout>

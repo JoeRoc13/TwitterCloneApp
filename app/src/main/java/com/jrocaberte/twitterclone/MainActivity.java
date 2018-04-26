@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,27 +16,18 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PREF_FILE_NAME = "UserInfo";
 
-    private MenuItem mSignInButton, mSignOutButton;
+    private MenuItem mSignInButton, mSignOutButton, mMessagesButton;
 
     private EditText mSearch;
+
+    private SharedPreferences userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
-
-        mSignInButton = (MenuItem) findViewById(R.id.action_sign_in);
-        mSignOutButton = (MenuItem) findViewById(R.id.action_sign_out);
-
-        mSignOutButton.setVisible(false);
-
-        // Redirect user to login/register page if not logged in
-        if(userInfo.contains("uid")) {
-            mSignInButton.setVisible(false);
-            mSignOutButton.setVisible(true);
-        }
+        userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
 
         mSearch = (EditText)findViewById(R.id.search);
 
@@ -65,6 +55,16 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.main_activity_actions, menu);
         mSignInButton = menu.findItem(R.id.action_sign_in);
         mSignOutButton = menu.findItem(R.id.action_sign_out);
+        mMessagesButton = menu.findItem(R.id.action_messages);
+        mSignOutButton.setVisible(false);
+        mMessagesButton.setVisible(false);
+
+        // Redirect user to login/register page if not logged in
+        if(userInfo.contains("uid")) {
+            mSignInButton.setVisible(false);
+            mSignOutButton.setVisible(true);
+            mMessagesButton.setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -82,15 +82,13 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 startActivity(getIntent());
                 return true;
+            case R.id.action_messages:
+                Intent messages_intent = new Intent(MainActivity.this, MessagesActivity.class);
+                startActivity(messages_intent);
+                finish();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void goToMessages(View view) {
-        Intent intent = new Intent(MainActivity.this, MessagesActivity.class);
-        startActivity(intent);
-        finish();
-        return;
     }
 }
