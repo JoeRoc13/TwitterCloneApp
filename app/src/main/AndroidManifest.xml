@@ -22,7 +22,20 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegistrationActivity" />
-        <activity android:name=".MessagesActivity"></activity>
+        <activity
+            android:name=".MessagesActivity"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jrocaberte.twitterclone.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".TweetsActivity"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jrocaberte.twitterclone.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

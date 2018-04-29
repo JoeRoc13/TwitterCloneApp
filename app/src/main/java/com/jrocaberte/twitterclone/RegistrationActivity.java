@@ -53,8 +53,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 progressDialog.show();
                 RequestQueue queue = Volley.newRequestQueue(RegistrationActivity.this);
                 //this is the url where you want to send the request
-                String IP = "10.253.80.169";
-                String url = "http://" + IP + "/Twitter_Clone/API/login.php";
+                String url = Constants.HOME_SERVER + Constants.SIGNUP_URL;
                 final String email = mEmail.getText().toString();
                 final String username = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();

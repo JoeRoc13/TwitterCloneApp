@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TweetsActivity"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/newTweet"
+        android:inputType="textMultiLine|textCapSentences"
+        android:lines="8"
+        android:minLines="6"
+        android:gravity="top|left"
+        android:maxLines="10"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:scrollbars="vertical"
+        android:hint="What's happening?" />
+
+    <Button
+        android:id="@+id/btnPostTweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post"
+        android:layout_gravity="right"/>
+
+    <TextView
+        android:id="@+id/searchingFor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10sp"
+        android:layout_marginLeft="10sp"
+        android:text="My tweets"
+        android:textSize="20sp"
+        android:layout_marginStart="10sp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tweet_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

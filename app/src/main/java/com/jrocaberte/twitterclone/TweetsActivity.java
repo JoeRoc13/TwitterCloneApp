@@ -1,7 +1,7 @@
 package com.jrocaberte.twitterclone;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,13 +9,11 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,24 +27,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class TweetsActivity extends AppCompatActivity {
 
     public static final String PREF_FILE_NAME = "UserInfo";
 
-    private MenuItem mSignInButton, mSignOutButton, mTweetsButton, mMessagesButton;
+    private EditText mNewTweet;
 
-    private EditText mSearch;
-
-    private Button mSearchButton;
-
-    private TextView mSearchingFor, mMostFollowed;
-
-    private SharedPreferences userInfo;
+    private Button mPostTweet;
 
     private ProgressDialog progressDialog;
 
@@ -59,47 +52,58 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_tweets);
 
-        mMostFollowed = (TextView) findViewById(R.id.mostFollowed);
+        progressDialog = new ProgressDialog(TweetsActivity.this);
+        progressDialog.setMessage("Loading tweets...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        findMostFollowed();
+        getSupportActionBar().setTitle("Tweets");
 
-        userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
-        mSearch = (EditText)findViewById(R.id.search);
+        mList = findViewById(R.id.tweet_list);
 
-        mSearchingFor = (TextView)findViewById(R.id.searchingFor);
+        tweetList = new ArrayList<>();
+        adapter = new TweetAdapter(getApplicationContext(), tweetList);
 
-        mSearchButton = (Button)findViewById(R.id.btnSearch);
+        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        dividerItemDecoration = new DividerItemDecoration(mList.getContext(), linearLayoutManager.getOrientation());
 
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
+        mList.setHasFixedSize(true);
+        mList.setLayoutManager(linearLayoutManager);
+        mList.addItemDecoration(dividerItemDecoration);
+        mList.setAdapter(adapter);
+
+        getTweets();
+
+        mNewTweet = (EditText)findViewById(R.id.newTweet);
+        mPostTweet = (Button)findViewById(R.id.btnPostTweet);
+
+        mPostTweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mList = findViewById(R.id.tweet_list);
-
-                tweetList = new ArrayList<>();
-                adapter = new TweetAdapter(getApplicationContext(), tweetList);
-
-                linearLayoutManager = new LinearLayoutManager(MainActivity.this);
-                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-                dividerItemDecoration = new DividerItemDecoration(mList.getContext(), linearLayoutManager.getOrientation());
-
-                mList.setHasFixedSize(true);
-                mList.setLayoutManager(linearLayoutManager);
-                mList.addItemDecoration(dividerItemDecoration);
-                mList.setAdapter(adapter);
-                performSearch();
+                postTweet();
             }
         });
-
     }
 
-    private void findMostFollowed() {
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+    private void postTweet() {
+        RequestQueue queue = Volley.newRequestQueue(TweetsActivity.this);
         //this is the url where you want to send the request
         //TODO: replace with your own url to send request, as I am using my own localhost for this tutorial
-        String url = Constants.HOME_SERVER + Constants.GET_MOST_FOLLOWED_URL;
+        String url = Constants.HOME_SERVER + Constants.POST_TWEET_URL;
+        final String tweet_body = mNewTweet.getText().toString();
+
+        progressDialog = new ProgressDialog(TweetsActivity.this);
+        progressDialog.setMessage("Posting...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -110,21 +114,33 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject= new JSONObject(response.toString());
                             String success = jsonObject.getString("success");
                             if(success.equals("true")) {
-                                String username = jsonObject.getString("username");
-                                mMostFollowed.setText("Most followed user: " + username);
-                                mMostFollowed.setVisibility(View.VISIBLE);
+                                progressDialog.dismiss();
+                                String tweet_body = mNewTweet.getText().toString();
+                                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                                String post_time = timestamp.toString().split("\\.")[0];
+                                Tweet tweet = new Tweet();
+                                tweet.setTweet(tweet_body);
+                                tweet.setPostTime(post_time);
+                                tweetList.add(0, tweet);
+                                adapter.notifyDataSetChanged();
+                                mNewTweet.setText("");
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                             } else {
+                                progressDialog.dismiss();
                                 String errorMsg = jsonObject.getString("error");
                                 Toast.makeText(getApplicationContext(), errorMsg,
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
+                            progressDialog.dismiss();
                             Log.d("JSON Error", e.toString());
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
                 Log.d("Error ", error.toString());
                 Toast.makeText(getApplicationContext(), "Connection failure!",
                         Toast.LENGTH_SHORT).show();
@@ -133,27 +149,30 @@ public class MainActivity extends AppCompatActivity {
             //adding parameters to the request
             @Override
             protected Map<String, String> getParams() {
+                SharedPreferences userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
+                String uid = Integer.toString(userInfo.getInt("uid", 0));
                 Map<String, String> params = new HashMap<>();
-                params.put("getMostFollowed", "true");
+                params.put("uid", uid);
+                params.put("tweet", tweet_body);
                 return params;
             }
         };
 
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        if(!tweet_body.trim().equals("")) {
+            queue.add(stringRequest);
+        } else {
+            progressDialog.dismiss();
+            Toast.makeText(getApplicationContext(), "You forgot to type a tweet!",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void performSearch() {
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+    private void getTweets() {
+        RequestQueue queue = Volley.newRequestQueue(TweetsActivity.this);
         //this is the url where you want to send the request
         //TODO: replace with your own url to send request, as I am using my own localhost for this tutorial
         String url = Constants.HOME_SERVER + Constants.GET_TWEETS_URL;
-        final String username = mSearch.getText().toString();
-
-        progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setMessage("Loading...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -172,9 +191,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     progressDialog.dismiss();
 
-                                    mSearchingFor.setText("Showing all tweets from: " + username);
-                                    mSearchingFor.setVisibility(View.VISIBLE);
-
                                     Tweet tweet = new Tweet();
                                     tweet.setTweet(body);
                                     tweet.setPostTime(post_time);
@@ -189,8 +205,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         } catch (JSONException e) {
                             progressDialog.dismiss();
-                            mSearchingFor.setText("No tweets from user: " + username);
-                            mSearchingFor.setVisibility(View.VISIBLE);
                             Log.d("JSON Error", e.toString());
                         }
                     }
@@ -198,14 +212,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 progressDialog.dismiss();
-                Log.d("Error ", error.toString());
-                Toast.makeText(getApplicationContext(), "Connection failure!",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Connection failure!", Toast.LENGTH_SHORT).show();
+                Log.d("Error", error.toString());
             }
         }) {
             //adding parameters to the request
             @Override
             protected Map<String, String> getParams() {
+                SharedPreferences userInfo = getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
+                String username = userInfo.getString("username", "");
                 Map<String, String> params = new HashMap<>();
                 params.put("username", username);
                 return params;
@@ -213,66 +228,14 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // Add the request to the RequestQueue.
-        if(!username.trim().equals("")) {
-            queue.add(stringRequest);
-        } else {
-            progressDialog.dismiss();
-            mSearchingFor.setVisibility(View.GONE);
-            Toast.makeText(getApplicationContext(), "Please enter a username",
-                    Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity_actions, menu);
-        mSignInButton = menu.findItem(R.id.action_sign_in);
-        mSignOutButton = menu.findItem(R.id.action_sign_out);
-        mTweetsButton = menu.findItem(R.id.action_tweets);
-        mMessagesButton = menu.findItem(R.id.action_messages);
-        mSignOutButton.setVisible(false);
-        mTweetsButton.setVisible(false);
-        mMessagesButton.setVisible(false);
-
-        // Redirect user to login/register page if not logged in
-        if(userInfo.contains("uid")) {
-            mSignInButton.setVisible(false);
-            mSignOutButton.setVisible(true);
-            mTweetsButton.setVisible(true);
-            mMessagesButton.setVisible(true);
-        }
-        return super.onCreateOptionsMenu(menu);
+        queue.add(stringRequest);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_sign_in:
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
-            case R.id.action_sign_out:
-                this.getSharedPreferences("UserInfo", 0).edit().clear(). apply();
-                finish();
-                startActivity(getIntent());
-                return true;
-            case R.id.action_tweets:
-                Intent tweets_intent = new Intent(MainActivity.this, TweetsActivity.class);
-                startActivity(tweets_intent);
-                finish();
-                return true;
-            case R.id.action_messages:
-                Intent messages_intent = new Intent(MainActivity.this, MessagesActivity.class);
-                startActivity(messages_intent);
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
         }
+        return super.onOptionsItemSelected(item);
     }
 }

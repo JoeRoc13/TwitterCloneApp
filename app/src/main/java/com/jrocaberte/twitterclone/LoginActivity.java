@@ -65,8 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                 RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
                 //this is the url where you want to send the request
                 //TODO: replace with your own url to send request, as I am using my own localhost for this tutorial
-                String IP = "10.0.2.2";
-                String url = "http://" + IP + "/Twitter_Clone/API/login.php";
+                String url = Constants.HOME_SERVER + Constants.LOGIN_URL;
                 final String username = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
 
@@ -75,9 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                // Display the response string.
-//                                SharedPreferences userInfo = getPreferences(Context.MODE_PRIVATE);
-//                                SharedPreferences.Editor edit = userInfo.edit();
+                                // Display the response string
                                 try {
                                     JSONObject jsonObject= new JSONObject(response.toString());
                                     String success = jsonObject.getString("success");
@@ -106,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                                         finish();
                                         return;
                                     } else {
+                                        progressDialog.dismiss();
                                         String errorMsg = jsonObject.getString("error");
                                         Toast.makeText(getApplicationContext(), errorMsg,
                                                 Toast.LENGTH_SHORT).show();
